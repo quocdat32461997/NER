@@ -7,6 +7,8 @@ from tensorflow.keras.layers import Input, LSTM, Lambda, Embedding, TimeDistribu
 import tensorflow_addons as tfa
 from tensorflow_addons.text import crf_log_likelihood, viterbi_decode
 
+from src.loss import CRF
+
 def embedding_layer(input_dim, output_dim, input_length, mask_zero):
     return Embedding(input_dim = input_dim, output_dim = output_dim, input_length = input_length, mask_zero = mask_zero)
 
