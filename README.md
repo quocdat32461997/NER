@@ -3,7 +3,7 @@ Implementation of BiLSTM-CRF model for Sequence Tagging
 
 [BiLSTM-CRF](https://arxiv.org/pdf/1508.01991v1.pdf) is a simple Deep Learning model for sequence tagging.
 
-![BiLSTM-CRF Network](./resources/bilstm-crf.network.png)
+![BiLSTM-CRF Network](./resources/bilstm-crf-network.png)
 
 
 #### Installation & Setup 
