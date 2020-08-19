@@ -4,15 +4,15 @@ loss.py - module to implement Conditional-RandompField loss function
 
 import tensorflow as tf
 import tensorflow.keras.backend as K
-import tensorflow.keras.layers as L
+import tensorflow.keras.layers import Layer, InputSpec
 from tensorflow_addons.text import crf_log_likelihood, crf_decode
 
-class CRF(L.Layer):
+class CRF(Layer):
     def __init__(self,
                  output_dim,
                  sparse_target=True,
                  **kwargs):
-        """
+        """    
         Args:
             output_dim (int): the number of labels to tag each temporal input.
             sparse_target (bool): whether the the ground-truth label represented in one-hot.
@@ -22,9 +22,9 @@ class CRF(L.Layer):
             (batch_size, sentence length, output_dim)
         """
         super(CRF, self).__init__(**kwargs)
-        self.output_dim = int(output_dim)
+        self.output_dim = int(output_dim) 
         self.sparse_target = sparse_target
-        self.input_spec = L.InputSpec(min_ndim=3)
+        self.input_spec = InputSpec(min_ndim=3)
         self.supports_masking = False
         self.sequence_lengths = None
         self.transitions = None
@@ -32,7 +32,7 @@ class CRF(L.Layer):
     def build(self, input_shape):
         assert len(input_shape) == 3
         f_shape = tf.TensorShape(input_shape)
-        input_spec = L.InputSpec(min_ndim=3, axes={-1: f_shape[-1]})
+        input_spec = InputSpec(min_ndim=3, axes={-1: f_shape[-1]})
 
         if f_shape[-1] is None:
             raise ValueError('The last dimension of the inputs to `CRF` '
@@ -109,6 +109,11 @@ class CRF(L.Layer):
         config = {
             'output_dim': self.output_dim,
             'sparse_target': self.sparse_target,
+            'supports_masking': self.supports_masking,
+            'transitions': K.eval(self.transitions)
+        }
+        base_config = super(CRF, self).get_config()
+        return dict(base_config, **config)
             'supports_masking': self.supports_masking,
             'transitions': K.eval(self.transitions)
         }
