@@ -54,10 +54,11 @@ class SentenceGetter(Sequence):
     def pad_sentences(self, input):
         input = [[self.word2dix[w[0]] for w in s] for s in input]
         return pad_sequences(maxlen = self.maxlen, sequences = input, padding = 'post', value = 0)
-
+    
     def generate_labels(self, input):
         input = [[self.tag2dix[w[2]] for w in s] for s in input]
         input = pad_sequences(maxlen = self.maxlen, sequences = input, padding = 'post', value = self.tag2dix['O'])
+        #return input
         return np.array([to_categorical(x, num_classes = self.n_tags) for x in input])
     def __len__(self):
         """
@@ -72,9 +73,9 @@ class SentenceGetter(Sequence):
 
         # get batch of data
         sentences = self.grouped[index * self.batch_size : (index + 1) * self.batch_size]
-
+        
         # generate sentences and labels
         labels = self.generate_labels(sentences)
         sentences = self.pad_sentences(sentences)
-
+        
         return sentences, labels
