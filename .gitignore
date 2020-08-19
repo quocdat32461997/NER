@@ -3,3 +3,4 @@
 **/name-entity-recognition-corpus
 **/*.csv
 **/__pycache__
+**/.DS_Store
