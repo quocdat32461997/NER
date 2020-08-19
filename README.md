@@ -6,18 +6,24 @@ Implementation of BiLSTM-CRF model for Sequence Tagging
 ![BiLSTM-CRF Network](./resources/bilstm-crf-network.png)
 
 
-#### Installation & Setup 
-'''pip install -r requirements.txt'''
+#### Installation & Setup
+```
+pip install -r requirements.txt
+```
 
 #### Training:
-- Run '''example.ipynb''' either locally or on Google Colab
+- Run **example.ipynb** either locally or on Google Colab
 - Scripts for training: To be added
 
 #### Inference
-''' To be added '''
+```
+To be added
+```
 
 ### Deployment in Tensorflow Serving
-''' To be added '''
+```
+To be added
+```
 
 #### Dependencies
 * Tensorflow >= 2.2
