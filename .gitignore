@@ -1,6 +1,6 @@
 **/.ipynb_checkpoints
-**/*.zip
 **/name-entity-recognition-corpus
+**/name-entity-recognition-corpus.zip
 **/*.csv
 **/__pycache__
 **/.DS_Store
