@@ -13,7 +13,46 @@ class BiLSTM_CRF:
 	"""
 	BiLSTM-CRF class to initialize NER (Name-Entity-Recognition) model
 	"""
-	def __init__(self, max_len, n_tags, word2dix, embed_dim, n_words, embed_initializer = 'glorot_normal', embed_regularizer = 'l2', embed_layer = None, hidden_units = 64, activations = ['tanh', 'relu'], regularizer = 'l2', dropout = 0.1, mask_zero = True, trainable = True, pretrained = None):
+	def __init__(self, max_len, n_tags, embed_dim, n_words = 0, word2dix = None, embed_initializer = 'glorot_normal', regularizers = ['l2', 'l2', 'l2'], embed_layer = None, hidden_units = 64, activations = ['tanh', 'relu'], regularizer = 'l2', dropout = 0.1, mask_zero = True, trainable = True, pretrained = None):
+		"""
+		Parameters:
+			max_len : int
+				Max length of sentences
+			n_tags : int
+				Number of tags / output_dim
+			embed_dim : int
+				Size of Embedding layer
+			n_words : int
+				Number of words (optional for Pre-trained embeddings only)
+			word2dix : dict
+				Dicitonary of key (word) and value (index)
+			embed_initializer : str
+				Matrix initailizer. If pretrained is valid, then embed_initializer is retreived from Pre-trained embeddings
+			regularizers : list of str
+				List of regularizers (default: 'l2' for both Embedding, BiLSTM, and Dense layers)
+			hidden_units : int
+				Size of hidden units
+			activations : list of str
+				List of activations (default: tanh for LSTM and relu for Dense layer between BiLSTM and CRF
+			dropout : float
+				Dropout rate applicable for layer in need
+			mask_zero : boolean
+				Signal to ignore padding tokens
+			trainable : boolean
+				Initiali setting for layers' trainability
+			pretrained : str
+				Default : None. Valid string uploads the pretrained embeddings
+
+		Functions:
+			- build_embed_layer : function to build Embedding layer
+			- __call__ : build BiLSTM-CRF model
+		Example:
+			# initialize BiLSTM_CRF layer
+			bilstm_crf = BiLSTM_CRF(max_len = 128, n_tags = 17, embed_dim = 50)
+			# initialize BiLSTM_CRF model
+			model = bilstm_crf()
+			model.summary()
+		"""
 		self.max_len = max_len
 		self.n_tags = n_tags
 		self.embed_layer = embed_layer
@@ -22,9 +61,8 @@ class BiLSTM_CRF:
 		self.n_words = n_words
 		self.word2dix = word2dix
 		self.embed_initializer = embed_initializer
-		self.embed_regularizer = embed_regularizer
 		self.activations = activations
-		self.regularizer = regularizer
+		self.regularizers = regularizers
 		self.dropout = dropout
 		self.mask_zero = mask_zero
 		self.trainable = trainable
@@ -51,7 +89,7 @@ class BiLSTM_CRF:
 					embeds[i] = embed_vector
 			self.embed_initializer = Constant(embeds)
 			
-		return Embedding(input_dim = self.n_words + 1, output_dim = self.embed_dim, input_length = self.max_len, mask_zero = self.mask_zero, trainable = self.trainable, embeddings_initializer = self.embed_initializer, embeddings_regularizer = self.embed_regularizer)
+		return Embedding(input_dim = self.n_words + 1, output_dim = self.embed_dim, input_length = self.max_len, mask_zero = self.mask_zero, trainable = self.trainable, embeddings_initializer = self.embed_initializer, embeddings_regularizer = self.regularizers[0])
 
 	def __call__(self):
 		# input layer
@@ -63,10 +101,10 @@ class BiLSTM_CRF:
 		# bilstm-crf layer
 		output = Bidirectional(
 			LSTM(units = self.hidden_units, return_sequences = True, 
-				activation = self.activations[0], activity_regularizer = self.regularizer,
+				activation = self.activations[0], activity_regularizer = self.regularizers[1],
 				dropout = self.dropout))(output)
 		# dense layer
-		output = TimeDistributed(Dense(self.n_tags, activation = self.activations[1]))(output)
+		output = TimeDistributed(Dense(self.n_tags, activation = self.activations[1], activity_regularizer = self.regularizers[-1]))(output)
 
 		# dense layer
 		output = CRF(self.n_tags, name = 'CRF')(output)
