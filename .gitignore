@@ -4,3 +4,7 @@
 **/.DS_Store
 **/*.csv
 **/glove.6B
+**/*.swp
+**/emerging_entities_17
+**/*.txt
+**/explore_ml
