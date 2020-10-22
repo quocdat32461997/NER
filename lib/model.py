@@ -15,7 +15,7 @@ class BiLSTM_CRF:
 	"""
 	def __init__(self, max_len, n_tags, embed_dim, n_words = 0, word2dix = None, embed_initializer = 'glorot_normal', regularizers = ['l2', 'l2', 'l2'], embed_layer = None, hidden_units = 64, activations = ['tanh', 'relu'], regularizer = 'l2', dropout = 0.1, mask_zero = True, trainable = True, pretrained = None):
 		"""
-		Parameters:
+		Inputs:
 			max_len : int
 				Max length of sentences
 			n_tags : int
