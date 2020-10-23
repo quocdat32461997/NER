@@ -2,6 +2,8 @@
 utils.py - module to implement utils for BiLSTM-CRF
 """
 
+# import dependencies
+import os
 import tensorflow as tf
 import numpy as np
 import pandas as pd
@@ -17,10 +19,13 @@ def process_text(input):
 	Outputs:
 		- input : TBD
 	"""
+	# split sequence of tokens-tags 
+	input = tf.strings.split(input, sep='\t')
 	
-	return input
-	
-
+	# split into tokens and tags individually
+	tokens = tf.strings.split(input[0])
+	tags = tf.strings.split(input[-1])
+	return tokens, tags
 
 
 class SentenceGetter(Sequence):

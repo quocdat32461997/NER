@@ -10,7 +10,7 @@ from tensorflow.data import TextLineDataset, Dataset
 from .utils import process_text
 class Dataset:
 	"""
-	Class Dataset to implement Tensorflow Dataset API for scalable data pipeline
+	Class Dataset to implement Tensorflow Dataset API for scalable training data pipeline
 	"""
 	def __init__(self, files, batch_size = 32, name = 'Dataset Loader'):
 		"""
@@ -32,7 +32,7 @@ class Dataset:
 		dataset = TextLineDataset(self.files)
 
 		# preprocessing
-		#dataset = dataset.apply(data.preprocess_text)
+		dataset = dataset.map(process_text)
 
 		return dataset
 
