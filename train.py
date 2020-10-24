@@ -14,7 +14,7 @@ def main():
 	texts = ['ner_text_dataset.txt', 'wnut17train_conll_text.txt']
 	targets = ['ner_label_dataset.txt', 'wnut17train_conll_label.txt']
 
-	# define path to word table lookup
+	# define path to lookup tables
 	word_table_path = './words.txt'
 	tag_table_path = './tags.txt'
 
