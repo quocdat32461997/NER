@@ -15,10 +15,11 @@ def main():
 	targets = ['ner_label_dataset.txt', 'wnut17train_conll_label.txt']
 
 	# define path to word table lookup
-	word_table_path = './embeddings/words.lst'
-	embedding_table_path = './embeddings/embeddings.txt'
+	word_table_path = './words.txt'
+	tag_table_path = './tags.txt'
 
-	dataset = Dataset(texts = texts, targets = targets, max_len = 64)()
+	dataset = Dataset(texts = texts, targets = targets,
+		word_table = word_table_path, tag_table = tag_table_path , max_len = 64)()
 
 	for data in dataset:
 		print(data)
