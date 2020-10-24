@@ -14,7 +14,7 @@ class Dataset:
 	"""
 	Class Dataset to implement Tensorflow Dataset API for scalable training data pipeline
 	"""
-	def __init__(self, texts, targets, max_len, batch_size = 32, shuffle = True, buffer_size = None, seed = 1997, name = 'Dataset Loader'):
+	def __init__(self, texts, targets, table, max_len, batch_size = 32, shuffle = True, buffer_size = None, seed = 1997, name = 'Dataset Loader'):
 		"""
 		Inputs:
 			- texts : str or list of str
@@ -22,6 +22,8 @@ class Dataset:
 				Within each file, there are lines of text (sentence or paragraph)
 			- targets : str or list of str
 				List of paths to label files
+			- table : Tensorflow lookup table
+				Lookup table for word-index
 			- max_len : int
 				Largest sequenceh length
 			- batch_size : int
