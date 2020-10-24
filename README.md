@@ -12,8 +12,8 @@ pip install -r requirements.txt
 ```
 
 #### Training:
-- Run **example.ipynb** either locally or on Google Colab
-- Scripts for training: To be added
+- Deveopment: run **SequenceTagger.ipynb** either locally or on Google Colab for development
+- Training: run **train.py** to fine-tune BiLSTM-CRF on NER dataset and CorNeLL 2017 dataset
 
 #### Inference
 ```
