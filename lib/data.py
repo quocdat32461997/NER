@@ -15,7 +15,7 @@ class Dataset:
 	"""
 	Class Dataset to implement Tensorflow Dataset API for scalable training data pipeline
 	"""
-	def __init__(self, texts, targets, max_len, word_table, tag_table, batch_size = 32, shuffle = True, buffer_size = None, seed = 1997, threads = 4, prefetch = 1, name = 'Dataset Loader'):
+	def __init__(self, texts, targets, word_table, tag_table, batch_size = 16, shuffle = True, buffer_size = 239, seed = 1997, threads = 4, prefetch = 1, name = 'Dataset Loader'):
 		"""
 		Inputs:
 			- texts : str or list of str
@@ -23,8 +23,6 @@ class Dataset:
 				Within each file, there are lines of text (sentence or paragraph)
 			- targets : str or list of str
 				List of paths to label files
-			- max_len : int
-				Largest sequenceh length
 			- word_table : str 
 				Text file storing list of words
 			- tag_table : str 
@@ -50,7 +48,6 @@ class Dataset:
 		if isinstance(targets, str): # convert to list of files if a single file only
 			targets = list(targets)
 		self.targets = targets
-		self.max_len = max_len
 		self.batch_size = batch_size
 		self.shuffle = shuffle
 		self.seed = seed
@@ -70,6 +67,7 @@ class Dataset:
 			self.buffer_size = batch_size * 3
 		else:
 			self.buffer_size = buffer_size 
+
 	def _create_lookup_table(self, file, num_oov_buckets = 1):
 		"""
 		_create_lookup_table - fucntion to createa word/tag lookup table
@@ -92,9 +90,11 @@ class Dataset:
 		_process - function to process text
 		
 		Inputs:
-			- input : TF Dataset object
+			- texts : TF TextLineDataset object
+			- targets : TF TextLineDataset object
 		Outputs:
-			- input : TF Dataset object
+			- dataset : TF Dataset object
+				Processed and concatenated dataset object
 		"""
 		
 		# processing

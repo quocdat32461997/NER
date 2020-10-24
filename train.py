@@ -21,7 +21,7 @@ def main():
 	tag_table_path = './tags.txt'
 
 	dataset = Dataset(texts = texts, targets = targets,
-		word_table = word_table_path, tag_table = tag_table_path , max_len = 64)()
+		word_table = word_table_path, tag_table = tag_table_path)()
 
 	for data in dataset:
 		texts, targets = data
