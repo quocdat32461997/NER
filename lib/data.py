@@ -7,14 +7,15 @@ import os
 from datetime import datetime
 import tensorflow as tf
 from tensorflow.data import TextLineDataset, Dataset
+from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticVocabularyTable
 
-from .utils import process_text
+from .utils import process_text, process_target
 
 class Dataset:
 	"""
 	Class Dataset to implement Tensorflow Dataset API for scalable training data pipeline
 	"""
-	def __init__(self, texts, targets, table, max_len, batch_size = 32, shuffle = True, buffer_size = None, seed = 1997, name = 'Dataset Loader'):
+	def __init__(self, texts, targets, max_len, word_table, tag_table, batch_size = 32, shuffle = True, buffer_size = None, seed = 1997, name = 'Dataset Loader'):
 		"""
 		Inputs:
 			- texts : str or list of str
@@ -22,10 +23,12 @@ class Dataset:
 				Within each file, there are lines of text (sentence or paragraph)
 			- targets : str or list of str
 				List of paths to label files
-			- table : Tensorflow lookup table
-				Lookup table for word-index
 			- max_len : int
 				Largest sequenceh length
+			- word_table : str 
+				Text file storing list of words
+			- tag_table : str 
+				Text file storing list of tags
 			- batch_size : int
 				Size of a batch of samples
 			- shuffle : boolean
@@ -47,15 +50,38 @@ class Dataset:
 		self.seed = seed
 		self.name = name
 
+		# retrieve word and tag table
+		assert type(word_table) == str, "Word table must be string type"
+		self.word_table = self._create_lookup_table(word_table)
+
+		assert type(tag_table) == str, "Tag table must be string type"
+		self.tag_table = self._create_lookup_table(tag_table)
+
 		# buffer_size for shuffling is set to triple the batch_size
 		if not buffer_size:
 			self.buffer_size = batch_size * 3
 		else:
 			self.buffer_size = buffer_size 
-
-	def _process_text(self, texts, targets):
+	def _create_lookup_table(self, file, num_oov_buckets = 1):
 		"""
-		_process_text - function to process text
+		_create_lookup_table - fucntion to createa word/tag lookup table
+		Inputs:
+			 - file : str
+				Name/path to word/tag list file
+			- num_oov_buckets : int
+				Number of out-of-vocab list
+		Outputs:
+			- table : Tensorflow lookup table
+		"""
+		initializer = TextFileInitializer(file, key_dtype = tf.string, key_index = TextFileIndex.WHOLE_LINE,
+			value_dtype = tf.int64, value_index = TextFileIndex.LINE_NUMBER, delimiter = '\n')
+		
+		table = StaticVocabularyTable(initializer, num_oov_buckets = 1)
+		return table
+
+	def _process(self, texts, targets):
+		"""
+		_process - function to process text
 		
 		Inputs:
 			- input : TF Dataset object
@@ -63,24 +89,24 @@ class Dataset:
 			- input : TF Dataset object
 		"""
 		
-
 		# processing
-		dataset = [data.map(process_text) for data in [texts, targets]]
+		texts = texts.map(lambda sent: process_text(sent, self.word_table))
+		targets = targets.map(lambda sent: process_target(sent, self.tag_table))
+
+		# concatnenate
+		dataset = tf.data.Dataset.zip((texts, targets))
 
 		# shuffling
 		if self.shuffle:
-			dataset = [data.shuffle(buffer_size = self.buffer_size, seed = self.seed) for data in dataset]
-
-		# concatenate texts and targets
-		dataset = tf.data.Dataset.zip(tuple(dataset))
+			dataset = dataset.shuffle(buffer_size = self.buffer_size, seed = self.seed)
 
 		# padding and truncating
 		padded_shapes = (tf.TensorShape([None]), tf.TensorShape([None])) # unknown length of texts and targets
 		padding_values = (0, 0) # 0 and 'O' for padding values
-		dataset = dataset.padded_batch(
-			batch_size = self.batch_size,
-			padded_shapes = padded_shapes,
-			padding_values = padding_values)
+		#dataset = dataset.padded_batch(
+		#	batch_size = self.batch_size,
+		#	padded_shapes = padded_shapes,
+		#	padding_values = padding_values)
 
 		return dataset
 
@@ -90,7 +116,7 @@ class Dataset:
 		targets = TextLineDataset(self.targets)
 
 		# process text data
-		dataset = self._process_text(texts, targets)
+		dataset = self._process(texts, targets)
 
 		return dataset
 

@@ -12,7 +12,7 @@ from tensorflow.keras.utils import Sequence, to_categorical
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.layers.experimental.preprocessing import TextVectorization
 
-def process_text(input):
+def process_text(input, word_table):
 	"""
 	Function process_text to clean text before Training process:
 		- lowercase
@@ -23,6 +23,8 @@ def process_text(input):
 	Inputs:
 		- input : Tensor
 			A single text line of sequence of words-tags
+		- word_table : Tensorflow table lookup
+			Table lookup to convert word to index
 	Outputs:
 		- input : Tensor
 	"""
@@ -32,6 +34,29 @@ def process_text(input):
 
 	# tokenize 
 	input = tf.strings.split(input)
+
+	# convert string to integer
+	input = word_table.lookup(input)
+
+	return input
+
+def process_target(input, tag_table):
+	"""
+	Function process_target to clean/process target for Training process:
+		- tokenize
+		- convert to full categoricals
+	Inputs:
+		- input : tensor
+			A single text line of sequences of words-tags
+		- tag_table : Tensor lookup table
+			Table lookup to convert tag to index
+	"""
+
+	# tokenize
+	input = tf.strings.split(input)
+
+	# convert string to integer
+	input = tag_table.lookup(input)
 
 	return input
 
