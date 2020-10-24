@@ -1,27 +1,70 @@
-"""
+"""	
 utils.py - module to implement utils for BiLSTM-CRF
 """
 
+# import dependencies
+import os
 import tensorflow as tf
 import numpy as np
 import pandas as pd
 from sklearn.utils import shuffle
 from tensorflow.keras.utils import Sequence, to_categorical
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.layers.experimental.preprocessing import TextVectorization
 
-def process_text(input):
+def process_text(input, word_table):
 	"""
-	Function process_text to clean text before Training process
+	Function process_text to clean text before Training process:
+		- lowercase
+		- tokenize
+
+	--Notice--
+		Punctuation stripping is not done here the dgiven dataset is clean. Also, punctuation is also considered as features as well.
 	Inputs:
-		- input : TBD
+		- input : Tensor
+			A single text line of sequence of words-tags
+		- word_table : Tensorflow table lookup
+			Table lookup to convert word to index
 	Outputs:
-		- input : TBD
+		- input : Tensor
+			Tensor of shape [sequence_length]
 	"""
-	
+
+	# lowercase string
+	input = tf.strings.lower(input)
+
+	# tokenize 
+	input = tf.strings.split(input)
+
+	# convert string to integer
+	input = word_table.lookup(input)
+
 	return input
-	
 
+def process_target(inputs, tag_table):
+	"""
+	Function process_target to clean/process target for Training process:
+		- tokenize
+		- convert to full categoricals
+	Inputs:
+		- inputs : tensor
+			A single text line of sequences of words-tags
+		- tag_table : Tensor lookup table
+			Table lookup to convert tag to index
+	Outputs:
+		- input: tensor
+			Tensor of shape [sequence_length, n_tags]
+	"""
 
+	# tokenize
+	inputs = tf.strings.split(inputs)
+
+	# convert string to integer
+	inputs = tag_table.lookup(inputs)
+
+	# expand targets to number of tags
+	inputs = tf.one_hot(inputs, depth = tf.cast(tag_table.size(), dtype = tf.int32), dtype = tf.int64)
+	return inputs
 
 class SentenceGetter(Sequence):
 	"""
