@@ -10,8 +10,9 @@ from lib import *
 
 def main():
 
-	files = ['ner_dataset.txt', 'wnut17train_conll.txt']
-	dataset = Dataset(files)()
+	texts = ['ner_text_dataset.txt', 'wnut17train_conll_text.txt']
+	targets = ['ner_label_dataset.txt', 'wnut17train_conll_label.txt']
+	dataset = Dataset(texts = texts, targets = targets, max_len = 64)()
 
 	for data in dataset:
 		print(data)
