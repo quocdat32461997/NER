@@ -27,6 +27,7 @@ def process_text(input, word_table):
 			Table lookup to convert word to index
 	Outputs:
 		- input : Tensor
+			Tensor of shape [sequence_length]
 	"""
 
 	# lowercase string
@@ -40,25 +41,30 @@ def process_text(input, word_table):
 
 	return input
 
-def process_target(input, tag_table):
+def process_target(inputs, tag_table):
 	"""
 	Function process_target to clean/process target for Training process:
 		- tokenize
 		- convert to full categoricals
 	Inputs:
-		- input : tensor
+		- inputs : tensor
 			A single text line of sequences of words-tags
 		- tag_table : Tensor lookup table
 			Table lookup to convert tag to index
+	Outputs:
+		- input: tensor
+			Tensor of shape [sequence_length, n_tags]
 	"""
 
 	# tokenize
-	input = tf.strings.split(input)
+	inputs = tf.strings.split(inputs)
 
 	# convert string to integer
-	input = tag_table.lookup(input)
+	inputs = tag_table.lookup(inputs)
 
-	return input
+	# expand targets to number of tags
+	inputs = tf.one_hot(inputs, depth = tf.cast(tag_table.size(), dtype = tf.int32), dtype = tf.int64)
+	return inputs
 
 class SentenceGetter(Sequence):
 	"""

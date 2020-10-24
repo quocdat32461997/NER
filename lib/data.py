@@ -91,7 +91,7 @@ class Dataset:
 		
 		# processing
 		texts = texts.map(lambda sent: process_text(sent, self.word_table))
-		targets = targets.map(lambda sent: process_target(sent, self.tag_table))
+		targets = targets.map(lambda sent: process_target(inputs = sent, tag_table = self.tag_table))
 
 		# concatnenate
 		dataset = tf.data.Dataset.zip((texts, targets))
@@ -101,12 +101,12 @@ class Dataset:
 			dataset = dataset.shuffle(buffer_size = self.buffer_size, seed = self.seed)
 
 		# padding and truncating
-		padded_shapes = (tf.TensorShape([None]), tf.TensorShape([None])) # unknown length of texts and targets
-		padding_values = (0, 0) # 0 and 'O' for padding values
-		#dataset = dataset.padded_batch(
-		#	batch_size = self.batch_size,
-		#	padded_shapes = padded_shapes,
-		#	padding_values = padding_values)
+		padded_shapes = (tf.TensorShape([None]), tf.TensorShape([None, None])) # unknown length of texts and targets
+		padding_values = (tf.constant(0, dtype = tf.int64), tf.constant(0, dtype = tf.int64)) #-1 and -1 for padding values
+		dataset = dataset.padded_batch(
+			batch_size = self.batch_size,
+			padded_shapes = padded_shapes,
+			padding_values = padding_values)
 
 		return dataset
 

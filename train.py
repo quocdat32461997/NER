@@ -5,6 +5,8 @@ train.py - module to implement Training functioanlity
 # import dependencies
 import os
 import argparse
+import tensorflow as tf
+tf.compat.v1.enable_eager_execution()
 
 from lib import *
 
