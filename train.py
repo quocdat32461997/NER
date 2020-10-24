@@ -24,7 +24,9 @@ def main():
 		word_table = word_table_path, tag_table = tag_table_path , max_len = 64)()
 
 	for data in dataset:
-		print(data)
+		texts, targets = data
+		print("Texts shape", texts.shape)
+		print("Targets shape", targets.shape)
 		break
 if __name__ == '__main__':
 	main()

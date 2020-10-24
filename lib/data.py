@@ -15,7 +15,7 @@ class Dataset:
 	"""
 	Class Dataset to implement Tensorflow Dataset API for scalable training data pipeline
 	"""
-	def __init__(self, texts, targets, max_len, word_table, tag_table, batch_size = 32, shuffle = True, buffer_size = None, seed = 1997, name = 'Dataset Loader'):
+	def __init__(self, texts, targets, max_len, word_table, tag_table, batch_size = 32, shuffle = True, buffer_size = None, seed = 1997, threads = 4, prefetch = 1, name = 'Dataset Loader'):
 		"""
 		Inputs:
 			- texts : str or list of str
@@ -37,6 +37,12 @@ class Dataset:
 				By default, None. buffer size to shuffle
 			- seed : int
 				Random seed
+			- threads : int
+				Number of threads
+			- prefetech : int
+				Number of prefetch
+			- name : str
+				Data loader class
 		"""
 		if isinstance(texts, str): # convert to list of files if a single file only
 			texts = list(text)
@@ -48,6 +54,8 @@ class Dataset:
 		self.batch_size = batch_size
 		self.shuffle = shuffle
 		self.seed = seed
+		self.threads = threads
+		self.prefetch = prefetch
 		self.name = name
 
 		# retrieve word and tag table
@@ -90,8 +98,8 @@ class Dataset:
 		"""
 		
 		# processing
-		texts = texts.map(lambda sent: process_text(sent, self.word_table))
-		targets = targets.map(lambda sent: process_target(inputs = sent, tag_table = self.tag_table))
+		texts = texts.map(lambda sent: process_text(sent, self.word_table), num_parallel_calls = self.threads)
+		targets = targets.map(lambda sent: process_target(inputs = sent, tag_table = self.tag_table), num_parallel_calls = self.threads)
 
 		# concatnenate
 		dataset = tf.data.Dataset.zip((texts, targets))
@@ -107,6 +115,9 @@ class Dataset:
 			batch_size = self.batch_size,
 			padded_shapes = padded_shapes,
 			padding_values = padding_values)
+
+		# prefetch
+		dataset = dataset.prefetch(self.prefetch)
 
 		return dataset
 
