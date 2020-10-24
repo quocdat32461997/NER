@@ -1,4 +1,4 @@
-"""
+"""	
 utils.py - module to implement utils for BiLSTM-CRF
 """
 
@@ -10,23 +10,30 @@ import pandas as pd
 from sklearn.utils import shuffle
 from tensorflow.keras.utils import Sequence, to_categorical
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.layers.experimental.preprocessing import TextVectorization
 
 def process_text(input):
 	"""
-	Function process_text to clean text before Training process
-	Inputs:
-		- input : TBD
-	Outputs:
-		- input : TBD
-	"""
-	# split sequence of tokens-tags 
-	input = tf.strings.split(input, sep='\t')
-	
-	# split into tokens and tags individually
-	tokens = tf.strings.split(input[0])
-	tags = tf.strings.split(input[-1])
-	return tokens, tags
+	Function process_text to clean text before Training process:
+		- lowercase
+		- tokenize
 
+	--Notice--
+		Punctuation stripping is not done here the dgiven dataset is clean. Also, punctuation is also considered as features as well.
+	Inputs:
+		- input : Tensor
+			A single text line of sequence of words-tags
+	Outputs:
+		- input : Tensor
+	"""
+
+	# lowercase string
+	input = tf.strings.lower(input)
+
+	# tokenize 
+	input = tf.strings.split(input)
+
+	return input
 
 class SentenceGetter(Sequence):
 	"""
