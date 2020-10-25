@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 import tensorflow as tf
 from tensorflow.data import TextLineDataset, Dataset
-from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticVocabularyTable
+from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticHashTable
 
 from .utils import process_text, process_target
 
@@ -57,10 +57,10 @@ class Dataset:
 
 		# retrieve word and tag table
 		assert type(word_table) == str, "Word table must be string type"
-		self.word_table = self._create_lookup_table(word_table)
+		self.word_table = self.create_lookup_table(word_table)
 
 		assert type(tag_table) == str, "Tag table must be string type"
-		self.tag_table = self._create_lookup_table(tag_table)
+		self.tag_table = self.create_lookup_table(tag_table)
 
 		# buffer_size for shuffling is set to triple the batch_size
 		if not buffer_size:
@@ -68,21 +68,23 @@ class Dataset:
 		else:
 			self.buffer_size = buffer_size 
 
-	def _create_lookup_table(self, file, num_oov_buckets = 1):
+	def create_lookup_table(self, file, default = -1):
 		"""
 		_create_lookup_table - fucntion to createa word/tag lookup table
 		Inputs:
 			 - file : str
 				Name/path to word/tag list file
-			- num_oov_buckets : int
-				Number of out-of-vocab list
+			- default : int
+				Default value for missing value. Be -1 by default
+
 		Outputs:
 			- table : Tensorflow lookup table
 		"""
 		initializer = TextFileInitializer(file, key_dtype = tf.string, key_index = TextFileIndex.WHOLE_LINE,
 			value_dtype = tf.int64, value_index = TextFileIndex.LINE_NUMBER, delimiter = '\n')
 		
-		table = StaticVocabularyTable(initializer, num_oov_buckets = 1)
+		table = StaticHashTable(initializer = initializer, default_value = default)
+
 		return table
 
 	def _process(self, texts, targets):
@@ -110,7 +112,7 @@ class Dataset:
 
 		# padding and truncating
 		padded_shapes = (tf.TensorShape([None]), tf.TensorShape([None, None])) # unknown length of texts and targets
-		padding_values = (tf.constant(0, dtype = tf.int64), tf.constant(0, dtype = tf.int64)) #-1 and -1 for padding values
+		padding_values = (tf.constant(self.word_table.size(), dtype = tf.int64), tf.constant(self.tag_table.size(), dtype = tf.int64)) #vocab_size and tag_size for padding values
 		dataset = dataset.padded_batch(
 			batch_size = self.batch_size,
 			padded_shapes = padded_shapes,
