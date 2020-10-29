@@ -71,7 +71,7 @@ class CRF(Layer):
 			log_likelihood, self.transitions = crf_log_likelihood(y_pred,
 				tf.cast(K.argmax(y_true), dtype=tf.int32) if self.sparse_target else y_true, self.sequence_lengths,
 					transition_params=self.transitions,)
-		return tf.reduce_mean(-log_likelihood)
+			return tf.reduce_mean(-log_likelihood)
 		return crf_loss
 
 	@property
