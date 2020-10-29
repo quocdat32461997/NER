@@ -68,11 +68,12 @@ def main():
 			model.layers[layer.name] = False
 
 	EPOCHS = 20
+	SHUFFLE = True
 	WORKERS = 4
 	QUEUE_SIZE = 10
 	STEPS = None
-	CALBACKS = []
-	#model.fit(dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epochs = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	CALLBACKS = []
+	model.fit(dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 if __name__ == '__main__':
 	main()
