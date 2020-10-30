@@ -15,14 +15,20 @@ class Dataset:
 	"""
 	Class Dataset to implement Tensorflow Dataset API for scalable training data pipeline
 	"""
-	def __init__(self, texts, targets, word_table, tag_table, batch_size = 16, shuffle = True, buffer_size = 239, seed = 1997, threads = 4, prefetch = 1, name = 'Dataset Loader'):
+	def __init__(self, texts, targets, val_texts = None, val_targets = None, word_table = None, tag_table = None, batch_size = 16, shuffle = True, buffer_size = 239, seed = 1997, threads = 4, prefetch = 1, name = 'Dataset Loader'):
 		"""
 		Inputs:
 			- texts : str or list of str
 				List of paths to text files
 				Within each file, there are lines of text (sentence or paragraph)
 			- targets : str or list of str
-				List of paths to label files
+				List of paths to lael files
+			
+			- val_texts : str or list of str
+                                List of paths to text files
+                                Within each file, there are lines of text (sentence or paragraph)
+                        - val_targets : str or list of str
+                                List of paths to label files
 			- word_table : str 
 				Text file storing list of words
 			- tag_table : str 
@@ -42,12 +48,22 @@ class Dataset:
 			- name : str
 				Data loader class
 		"""
+
+		# dataset
 		if isinstance(texts, str): # convert to list of files if a single file only
 			texts = list(text)
+		if isinstance(val_texts, str):
+			val_texts = list(val_texts)
 		self.texts = texts
+		self.val_texts = val_texts
 		if isinstance(targets, str): # convert to list of files if a single file only
 			targets = list(targets)
+		if isinstance(val_targets, str):
+			val_targets = list(val_targets)
 		self.targets = targets
+		self.val_targets = val_targets
+
+		# parameters
 		self.batch_size = batch_size
 		self.shuffle = shuffle
 		self.seed = seed
@@ -56,10 +72,10 @@ class Dataset:
 		self.name = name
 
 		# retrieve word and tag table
-		assert type(word_table) == str, "Word table must be string type"
+		assert type(word_table) == str, "Word table must be string type and not None"
 		self.word_table = self.create_lookup_table(word_table)
 
-		assert type(tag_table) == str, "Tag table must be string type"
+		assert type(tag_table) == str, "Tag table must be string type and not None"
 		self.tag_table = self.create_lookup_table(tag_table)
 
 		# buffer_size for shuffling is set to triple the batch_size
@@ -131,5 +147,16 @@ class Dataset:
 		# process text data
 		dataset = self._process(texts, targets)
 
-		return dataset
+		if self.val_texts and self.val_targets:
+			# read text data
+			val_texts = TextLineDataset(self.val_texts)
+			val_targets = TextLineDataset(self.val_targets)
+
+			# process text data
+			val_dataset = self._process(val_texts, val_targets)
+
+			return dataset, val_dataset
+
+		else:
+			return dataset
 
