@@ -36,8 +36,8 @@ def main():
 	for train, val in zip(train_dataset, val_dataset):
 		txt, labels = train
 		val_txt, val_labels = val
-		print("Texts shape: train {} and val {}", txt.shape, val_txt.shape)
-		print("Targets shape: train {} and val {}", labels.shape, val_labels.shape)
+		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
+		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
 		break
 
 	"""
@@ -84,7 +84,7 @@ def main():
 	early_stopping = EarlyStopping(monitor = 'loss', patience = 10, verbose = 1)
 	lr_reduce = ReduceLROnPlateau(monitor = 'loss', patience = 5, verbose = 1)
 	CALLBACKS = [logging, early_stopping, lr_reduce]
-	 #model.fit(dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 if __name__ == '__main__':
 	main()
