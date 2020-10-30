@@ -7,6 +7,7 @@ import os
 import argparse
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau
 
 tf.compat.v1.enable_eager_execution()
 
@@ -72,7 +73,13 @@ def main():
 	WORKERS = 4
 	QUEUE_SIZE = 10
 	STEPS = None
-	CALLBACKS = []
+
+	# define callbacks
+	log_dir = 'logs'
+	logging = TensorBoard(log_dir = log_dir, write_graph = True, write_images = True)
+	early_stopping = EarlyStopping(monitor = 'loss', patience = 10, verbose = 1)
+	lr_reduce = ReduceLROnPlateau(monitor = 'loss', patience = 5, verbose = 1)
+	CALLBACKS = [logging, early_stopping, lr_reduce]
 	model.fit(dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 if __name__ == '__main__':
