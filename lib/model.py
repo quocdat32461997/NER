@@ -92,7 +92,7 @@ class BiLSTM_CRF:
 					embed_index[word] = coefs
 			
 			# initialize new word embedding matrices
-			embeds  = np.zeros((self.n_words + 1, self.embed_dim))
+			embeds = np.zeros((self.n_words + 1, self.embed_dim))
 			# parse words to pretrained word embeddings
 			words, indices = self.word_table.export()
 			#for word, i in zip(tf.strings.as_string(words), indices.numpy()):
@@ -103,7 +103,7 @@ class BiLSTM_CRF:
 					embeds[i] = embed_vector
 			self.embed_initializer = Constant(embeds)
 			
-		return Embedding(input_dim = self.n_words + 1, output_dim = self.embed_dim, input_length = self.max_len, mask_zero = self.mask_zero, trainable = self.trainable, embeddings_initializer = self.embed_initializer, embeddings_regularizer = self.regularizers[0])
+		return Embedding(input_dim = self.n_words + 1, output_dim = self.embed_dim, input_length = self.max_len, mask_zero = self.mask_zero, trainable = self.trainable, embeddings_initializer = self.embed_initializer, embeddings_regularizer = self.regularizers[0], mask_zero = self.mask_zero)
 
 	def __call__(self):
 		# input layer
