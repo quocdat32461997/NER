@@ -7,6 +7,7 @@ import os
 import argparse
 import tensorflow as tf
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau
 
 tf.compat.v1.enable_eager_execution()
 
@@ -18,21 +19,25 @@ def main():
 	initialize Data pipeline
 	"""
 	# define paths to text data and lookup tables
-	texts = ['data/ner_text_dataset.txt', 'data/wnut17train_conll_text.txt']
-	targets = ['data/ner_label_dataset.txt', 'data/wnut17train_conll_label.txt']
+	train_texts = ['data/ner_train_text.txt', 'data/wnut17train_conll_train_text.txt']
+	train_targets = ['data/ner_train_label.txt', 'data/wnut17train_conll_val_label.txt']
+
+	val_texts = ['data/ner_val_text.txt', 'data/wnut17train_conll_val_text.txt']
+	val_targets = ['data/ner_val_label.txt', 'data/wnut17train_conll_val_label.txt']
 
 	word_table_path = './data/words.txt'
 	tag_table_path = './data/tags.txt'
 
-	data_pipeline = Dataset(texts = texts, targets = targets,
-		word_table = word_table_path, tag_table = tag_table_path)
-	dataset = data_pipeline()
+	data_pipeline = Dataset(texts = train_texts, targets = train_targets, val_texts = val_texts, val_targets = val_targets, word_table = word_table_path, tag_table = tag_table_path)
+	train_dataset, val_dataset = data_pipeline()
 
-	print("Testing Training Data Pipeline")
-	for data in dataset:
-		texts, targets = data
-		print("Texts shape", texts.shape)
-		print("Targets shape", targets.shape)
+
+	print("Testing Data Pipeline")
+	for train, val in zip(train_dataset, val_dataset):
+		txt, labels = train
+		val_txt, val_labels = val
+		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
+		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
 		break
 
 	"""
@@ -72,8 +77,14 @@ def main():
 	WORKERS = 4
 	QUEUE_SIZE = 10
 	STEPS = None
-	CALLBACKS = []
-	model.fit(dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+
+	# define callbacks
+	log_dir = 'logs'
+	logging = TensorBoard(log_dir = log_dir, write_graph = True, write_images = True)
+	early_stopping = EarlyStopping(monitor = 'loss', patience = 10, verbose = 1)
+	lr_reduce = ReduceLROnPlateau(monitor = 'loss', patience = 5, verbose = 1)
+	CALLBACKS = [logging, early_stopping, lr_reduce]
+	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 if __name__ == '__main__':
 	main()
