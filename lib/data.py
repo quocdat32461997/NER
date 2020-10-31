@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 import tensorflow as tf
 from tensorflow.data import TextLineDataset, Dataset
-from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticHashTable
+from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticHashTable, StaticVocabularyTable
 
 from .utils import process_text, process_target
 

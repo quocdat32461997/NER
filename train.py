@@ -38,11 +38,8 @@ def main():
 		val_txt, val_labels = val
 		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
 		print(data_pipeline.word_table.size(), data_pipeline.tag_table)
-		print(txt)
 		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
-		print(labels)
 		break
-	input()
 
 	"""
 	define BiLSTM-CRF model
@@ -77,7 +74,6 @@ def main():
 
 	QUEUE_SIZE = 10
 	WORKERS = 4
-	STEPS = None
 
 	# Step 1: freeze Embedding layer for stable-loss training
 	for idx, layer in zip(range(len(model.layers)), model.layers):
@@ -88,8 +84,9 @@ def main():
 
 	EPOCHS = 50
 	SHUFFLE = True
+	STEPS = None # entire dataset
 
-	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 
 	# Step 2: unfreeze all layers for full-model training
@@ -99,7 +96,8 @@ def main():
 	print("Inspect trainable parameters in Phase 2:", model.summary())
 
 	EPOCHS = 200
-	ShUFFLE = True
+	SHUFFLE = True
+	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
 	#model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
