@@ -9,6 +9,7 @@ import tensorflow as tf
 from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticHashTable
 
 from bilstm_crf.models import CRF
+from bilstm_crf.utils import process_text
 
 class NameEntityRecognizer:
 	"""
@@ -20,8 +21,8 @@ class NameEntityRecognizer:
 		Inputs:
 			- model : str or tf.keras.Model
 				If not tf.keras.Model, have to load model itself
-			- tag_table : str or Tensorflow lookup table
-				Path to table or Tag lookup table
+			- tag_table : str or Python dictioanry
+				Path to table or Python dictionary
 			- word_table : str or Tensorflow lookup table
 				Path to table or Word lookup table
 		"""
@@ -33,11 +34,18 @@ class NameEntityRecognizer:
 		else:
 			self.model = model
 
+		# load tag-table to dict
 		if isinstance(tag_table, str):
-			self.tag_table = self._create_lookup_table(tag_table, type = 'idx2str', default = 'UNKNOWN')
+			self.tag_table = {}
+			with open(tag_table) as file:
+				tags = file.read().split('\n')
+
+			for idx, tag in zip(range(len(tags)), tags):
+				self.tag_table[idx] = tag
 		else:
 			self.tag_table = tag_table
 
+		# load word-table
 		if isinstance(word_table, str):
 			self.word_table = self._create_lookup_table(word_table)
 		else:
@@ -84,40 +92,39 @@ class NameEntityRecognizer:
 				Predicted tags. Tensor shape of [batch_size, sequence-length, number-tags]
 		"""
 
-		# reshape to [batch_size, sequence_length]
-		if tf.shape(input) == 1:
-			input = tf.expand_dims(input, axis = 0)
-
 		# conver text to acceptd input format
 		input = self._process_text(input)
+
+		# reshape to [batch_size, sequence_length]
+		if len(tf.shape(input)) == 1:
+			input = tf.expand_dims(input, axis = 0)
 
 		# make predictions
 		predictions = self.model.predict(input)
 
 		# convert to correct output format
 		predictions = self.pred_to_tags(predictions)
+		print(predictions)
 		
 		return predictions
 	
-	def pred_to_tags(input):
+	def pred_to_tags(self, input):
 		"""
 		pred_to_tags - function to convert BiLSTM-CRF prediction to tags
 		Inputs:
-			- input : Tensor
-				Tensor of shape [batch_size, sequenc_length, number_tags] or [sequence_length, number_tags]
+			- input : Numpy array
+				Numpy array of shape [batch_size, sequenc_length, number_tags]
 		Outputs:
 			- output : list of tags
 		"""
 
-		# reshape input-shape to [batch-size, sequence-length, number-tags]
-		if tf.shape(input) == 2: # input has only one sample
-			input = tf.expand_dims(input, axis = 0)
-
-		# convert to numpy for CPU-processing
-		input = input.numpy()
-
 		# find tag-index with highest probability
 		output = np.argmax(input, axis = -1)
+
+		# convert tag-index to real-tag
+		def _idx2tag(input):
+			return [self.tag_table[x] for x in input]
+		output = np.apply_along_axis(_idx2tag, axis = 0, arr = output)
 
 		return output
 
@@ -132,6 +139,6 @@ class NameEntityRecognizer:
 				Processed text
 		"""
 
-		text = process_text(text)
+		text = process_text(text, self.word_table)
 
 		return text
