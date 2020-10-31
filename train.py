@@ -11,7 +11,8 @@ from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPla
 
 tf.compat.v1.enable_eager_execution()
 
-from lib import *
+from lib.data import Dataset
+from lib.models import BiLSTM_CRF
 
 def main():
 
@@ -86,7 +87,7 @@ def main():
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 
 	# Step 2: unfreeze all layers for full-model training
