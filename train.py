@@ -6,13 +6,12 @@ train.py - module to implement Training functioanlity
 import os
 import argparse
 import tensorflow as tf
+from datetime import datetime
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau
+from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau, ModelCheckpoint
 
-tf.compat.v1.enable_eager_execution()
-
-from lib.data import Dataset
-from lib.models import BiLSTM_CRF
+from bilstm_crf.data import Dataset
+from bilstm_crf.models import BiLSTM_CRF
 
 def main():
 
@@ -21,7 +20,7 @@ def main():
 	"""
 	# define paths to text data and lookup tables
 	train_texts = ['data/ner_train_text.txt', 'data/wnut17train_conll_train_text.txt']
-	train_targets = ['data/ner_train_label.txt', 'data/wnut17train_conll_val_label.txt']
+	train_targets = ['data/ner_train_label.txt', 'data/wnut17train_conll_train_label.txt']
 
 	val_texts = ['data/ner_val_text.txt', 'data/wnut17train_conll_val_text.txt']
 	val_targets = ['data/ner_val_label.txt', 'data/wnut17train_conll_val_label.txt']
@@ -29,7 +28,9 @@ def main():
 	word_table_path = './data/words.txt'
 	tag_table_path = './data/tags.txt'
 
-	data_pipeline = Dataset(texts = train_texts, targets = train_targets, val_texts = val_texts, val_targets = val_targets, word_table = word_table_path, tag_table = tag_table_path)
+	BATCH_SIZE = 32
+
+	data_pipeline = Dataset(texts = train_texts, targets = train_targets, val_texts = val_texts, val_targets = val_targets, word_table = word_table_path, tag_table = tag_table_path, batch_size = BATCH_SIZE)
 	train_dataset, val_dataset = data_pipeline()
 
 
@@ -38,8 +39,8 @@ def main():
 		txt, labels = train
 		val_txt, val_labels = val
 		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
-		print(data_pipeline.word_table.size(), data_pipeline.tag_table)
 		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
+		print()
 		break
 
 	"""
@@ -52,7 +53,7 @@ def main():
 	max_len = None
 
 	# initialie BiLSTM-CRF class object
-	bilstm_crf = BiLSTM_CRF(max_len = max_len, embed_dim = embed_dim, n_tags = data_pipeline.tag_table.size(), word_table = data_pipeline.word_table, hidden_units = hidden_units, pretrained_embed = pretrained_embed)
+	bilstm_crf = BiLSTM_CRF(max_len = max_len, embed_dim = embed_dim, n_tags = data_pipeline.tag_table.size(), word_table = data_pipeline.word_table.export(), hidden_units = hidden_units, pretrained_embed = pretrained_embed)
 	model = bilstm_crf()
 
 	# compile model
@@ -60,7 +61,7 @@ def main():
 	optimizer = Adam(learning_rate = LR)
 	loss = model.layers[-1].loss
 	metrics = [model.layers[-1].accuracy]
-	model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
+	model.compile(optimizer = optimizer, loss = loss)
 
 	"""
 	Training
@@ -69,39 +70,45 @@ def main():
 	# define callbacks
 	log_dir = 'logs'
 	logging = TensorBoard(log_dir = log_dir, write_graph = True, write_images = True)
+	checkpoints = ModelCheckpoint(filepath = 'logs', save_weight_only = True, verbose = 1)
 	early_stopping = EarlyStopping(monitor = 'loss', patience = 10, verbose = 1)
 	lr_reduce = ReduceLROnPlateau(monitor = 'loss', patience = 5, verbose = 1)
-	CALLBACKS = [logging, early_stopping, lr_reduce]
+	CALLBACKS = [logging, early_stopping, lr_reduce, checkpoints]
 
 	QUEUE_SIZE = 10
 	WORKERS = 4
 
 	# Step 1: freeze Embedding layer for stable-loss training
+	print("Phase-1 training: stable loss")
 	for idx, layer in zip(range(len(model.layers)), model.layers):
 		print(layer.name)
 		if layer.name == 'embedding':
 			model.layers[idx].trainable = False
 	print("Inspect trainable parameters in Phase 1:", model.summary())
+	print(model.loss)
 
-	EPOCHS = 50
+	EPOCHS = 1
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
-
+	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 	# Step 2: unfreeze all layers for full-model training
+	print("Phase-2 training: full-fine-tuning")
 	for idx, layer in zip(range(len(model.layers)), model.layers):
 		print(layer.name)
 		model.layers[idx].trainable = True
 	print("Inspect trainable parameters in Phase 2:", model.summary())
 
-	EPOCHS = 200
+	EPOCHS = 1
 	SHUFFLE = True
 	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
-	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	#model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
-
+	# save model
+	model_path = 'bilstm_crf_model_{}'.format(datetime.utcnow())
+	print("Saving model into {}".format(model_path))
+	model.save(model_path)
 if __name__ == '__main__':
 	main()
