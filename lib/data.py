@@ -132,7 +132,7 @@ class Dataset:
 		dataset = dataset.padded_batch(
 			batch_size = self.batch_size,
 			padded_shapes = padded_shapes,
-			padding_values = padding_values)
+			padding_values = padding_values, drop_remainder = True)
 
 		# prefetch
 		dataset = dataset.prefetch(self.prefetch)

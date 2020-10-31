@@ -6,10 +6,9 @@ train.py - module to implement Training functioanlity
 import os
 import argparse
 import tensorflow as tf
+from datetime import datetime
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau
-
-tf.compat.v1.enable_eager_execution()
+from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau, ModelCheckpoint
 
 from lib.data import Dataset
 from lib.models import BiLSTM_CRF
@@ -29,7 +28,9 @@ def main():
 	word_table_path = './data/words.txt'
 	tag_table_path = './data/tags.txt'
 
-	data_pipeline = Dataset(texts = train_texts, targets = train_targets, val_texts = val_texts, val_targets = val_targets, word_table = word_table_path, tag_table = tag_table_path)
+	BATCH_SIZE = 32
+
+	data_pipeline = Dataset(texts = train_texts, targets = train_targets, val_texts = val_texts, val_targets = val_targets, word_table = word_table_path, tag_table = tag_table_path, batch_size = BATCH_SIZE)
 	train_dataset, val_dataset = data_pipeline()
 
 
@@ -40,6 +41,7 @@ def main():
 		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
 		print(data_pipeline.word_table.size(), data_pipeline.tag_table)
 		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
+		print()
 		break
 
 	"""
@@ -60,7 +62,7 @@ def main():
 	optimizer = Adam(learning_rate = LR)
 	loss = model.layers[-1].loss
 	metrics = [model.layers[-1].accuracy]
-	model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
+	model.compile(optimizer = optimizer, loss = loss)
 
 	"""
 	Training
@@ -69,6 +71,7 @@ def main():
 	# define callbacks
 	log_dir = 'logs'
 	logging = TensorBoard(log_dir = log_dir, write_graph = True, write_images = True)
+	checkpoints = ModelCheckpoint(filepath = 'logs', save_weight_only = True, verbose = 1)
 	early_stopping = EarlyStopping(monitor = 'loss', patience = 10, verbose = 1)
 	lr_reduce = ReduceLROnPlateau(monitor = 'loss', patience = 5, verbose = 1)
 	CALLBACKS = [logging, early_stopping, lr_reduce]
@@ -82,12 +85,13 @@ def main():
 		if layer.name == 'embedding':
 			model.layers[idx].trainable = False
 	print("Inspect trainable parameters in Phase 1:", model.summary())
+	print(model.loss)
 
-	EPOCHS = 50
+	EPOCHS = 1
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS)
 
 
 	# Step 2: unfreeze all layers for full-model training
@@ -96,12 +100,13 @@ def main():
 		model.layers[idx].trainable = True
 	print("Inspect trainable parameters in Phase 2:", model.summary())
 
-	EPOCHS = 200
+	EPOCHS = 1
 	SHUFFLE = True
 	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
-	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	#model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
-
+	# save model
+	#model.save('bilstm_crf_model_{}'.format(datetime.utcnow()))
 if __name__ == '__main__':
 	main()
