@@ -102,5 +102,5 @@ class CRF(Layer):
 			'supports_masking': self.supports_masking,
 			'transitions': K.eval(self.transitions)
 		}
-		base_config = super(CRF, self).get_config()
-		return dict(base_config, **config)
+		#base_config = super(CRF, self).get_config()
+		return config #dict(base_config, **config)

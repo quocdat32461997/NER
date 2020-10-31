@@ -31,8 +31,8 @@ class BiLSTM_CRF:
 				Size of Embedding layer
 			n_words : int
 				Number of words (optional for Pre-trained embeddings only)
-			word_table : Tensorflow lookup table
-				Lookup table for Word and Index
+			word_table : Pair of Tensor objects 
+				Pair of Tensor objects for word-dictionary and index-dictionary
 			embed_initializer : str
 				Matrix initailizer. If pretrained is valid, then embed_initializer is retreived from Pre-trained embeddings
 			regularizers : list of str
@@ -65,7 +65,7 @@ class BiLSTM_CRF:
 		self.embed_layer = embed_layer
 		self.hidden_units = hidden_units
 		self.embed_dim = embed_dim
-		self.n_words = n_words if n_words else word_table.size()
+		self.n_words = n_words if n_words else word_table[0].shape[0]
 		self.word_table = word_table
 		self.embed_initializer = embed_initializer
 		self.activations = activations
@@ -94,8 +94,7 @@ class BiLSTM_CRF:
 			# initialize new word embedding matrices
 			embeds = np.zeros((self.n_words + 1, self.embed_dim))
 			# parse words to pretrained word embeddings
-			words, indices = self.word_table.export()
-			#for word, i in zip(tf.strings.as_string(words), indices.numpy()):
+			words, indices = self.word_table
 			for text, i in zip(words.numpy(), indices.numpy()):
 				word = str(text)[2:-1] # get word from byte-class string
 				embed_vector = embed_index.get(word)

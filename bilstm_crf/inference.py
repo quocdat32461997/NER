@@ -7,29 +7,7 @@ import os
 import numpy as np
 import tensorflow as tf
 
-def pred_to_tags(input, tags):
-	"""
-	pred_to_tags - function to convert BiLSTM-CRF prediction to tags
-	Inputs:
-		- input : Tensor
-			Tensor of shape [batch_size, sequenc_length, number_tags] or [sequence_length, number_tags]
-		- tags : Python dictionary
-			Dictionary of index-tag
-	Outputs:
-		- output : list of tags
-	"""
-
-	# reshape input-shape to [batch-size, sequence-length, number-tags]
-	if tf.shape(input) == 2: # input has only one sample
-		input = tf.expand_dims(input, axis = 0)
-
-	# convert to numpy for CPU-processing
-	input = input.numpy()
-
-	# find tag-index with highest probability
-	output = np.argmax(input, axis = -1)
-
-	return output
+from bilstm_crf.models import CRF
 
 class NameEntityRecognizer:
 	"""
@@ -47,8 +25,10 @@ class NameEntityRecognizer:
 
 		# if model is string, load model from the given model path
 		if isinstance(model, str):
-			model = tf.saved_model.load(model)
-		self.model = model
+			print("Loading model")
+			self.model = tf.keras.models.load_model(model, custom_objects = {'crf_loss' : CRF.loss})
+		else:
+			self.model = model
 
 		self.tags = tags
 

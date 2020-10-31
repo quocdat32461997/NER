@@ -53,7 +53,7 @@ def main():
 	max_len = None
 
 	# initialie BiLSTM-CRF class object
-	bilstm_crf = BiLSTM_CRF(max_len = max_len, embed_dim = embed_dim, n_tags = data_pipeline.tag_table.size(), word_table = data_pipeline.word_table, hidden_units = hidden_units, pretrained_embed = pretrained_embed)
+	bilstm_crf = BiLSTM_CRF(max_len = max_len, embed_dim = embed_dim, n_tags = data_pipeline.tag_table.size(), word_table = data_pipeline.word_table.export(), hidden_units = hidden_units, pretrained_embed = pretrained_embed)
 	model = bilstm_crf()
 
 	# compile model
@@ -73,7 +73,7 @@ def main():
 	checkpoints = ModelCheckpoint(filepath = 'logs', save_weight_only = True, verbose = 1)
 	early_stopping = EarlyStopping(monitor = 'loss', patience = 10, verbose = 1)
 	lr_reduce = ReduceLROnPlateau(monitor = 'loss', patience = 5, verbose = 1)
-	CALLBACKS = [logging, early_stopping, lr_reduce]
+	CALLBACKS = [logging, early_stopping, lr_reduce, checkpoints]
 
 	QUEUE_SIZE = 10
 	WORKERS = 4
@@ -91,7 +91,7 @@ def main():
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 	# Step 2: unfreeze all layers for full-model training
 	print("Phase-2 training: full-fine-tuning")
@@ -104,9 +104,11 @@ def main():
 	SHUFFLE = True
 	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
-	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	#model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
 	# save model
-	model.save('bilstm_crf_model_{}'.format(datetime.utcnow()))
+	model_path = 'bilstm_crf_model_{}'.format(datetime.utcnow())
+	print("Saving model into {}".format(model_path))
+	model.save(model_path)
 if __name__ == '__main__':
 	main()
