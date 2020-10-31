@@ -71,7 +71,6 @@ class NameEntityRecognizer:
 		predictions = self.model.predict(input)
 		
 		return predictions
-
 	
 	def pred_to_tags(input, tags):
 		"""
@@ -85,7 +84,8 @@ class NameEntityRecognizer:
 			- output : list of tags
 		"""
 
-		# reshape input-shape to [batch-size, sequence-length, number-tags]			if tf.shape(input) == 2: # input has only one sample
+		# reshape input-shape to [batch-size, sequence-length, number-tags]
+		if tf.shape(input) == 2: # input has only one sample
 			input = tf.expand_dims(input, axis = 0)
 
 		# convert to numpy for CPU-processing
