@@ -103,7 +103,7 @@ class BiLSTM_CRF:
 					embeds[i] = embed_vector
 			self.embed_initializer = Constant(embeds)
 			
-		return Embedding(input_dim = self.n_words + 1, output_dim = self.embed_dim, input_length = self.max_len, mask_zero = self.mask_zero, trainable = self.trainable, embeddings_initializer = self.embed_initializer, embeddings_regularizer = self.regularizers[0], mask_zero = self.mask_zero)
+		return Embedding(input_dim = self.n_words + 1, output_dim = self.embed_dim, input_length = self.max_len, mask_zero = self.mask_zero, trainable = self.trainable, embeddings_initializer = self.embed_initializer, embeddings_regularizer = self.regularizers[0])
 
 	def __call__(self):
 		# input layer

@@ -84,7 +84,7 @@ class Dataset:
 		else:
 			self.buffer_size = buffer_size 
 
-	def create_lookup_table(self, file, default = -1):
+	def create_lookup_table(self, file, default = 0):
 		"""
 		_create_lookup_table - fucntion to createa word/tag lookup table
 		Inputs:
@@ -128,7 +128,7 @@ class Dataset:
 
 		# padding and truncating
 		padded_shapes = (tf.TensorShape([None]), tf.TensorShape([None, None])) # unknown length of texts and targets
-		padding_values = (tf.constant(self.word_table.size(), dtype = tf.int64), tf.constant(self.tag_table.size(), dtype = tf.int64)) #vocab_size and tag_size for padding values
+		padding_values = (tf.constant(0, dtype = tf.int64), tf.constant(0, dtype = tf.int64)) #vocab_size and tag_size for padding values
 		dataset = dataset.padded_batch(
 			batch_size = self.batch_size,
 			padded_shapes = padded_shapes,
