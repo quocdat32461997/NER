@@ -39,6 +39,7 @@ def main():
 		txt, labels = train
 		val_txt, val_labels = val
 		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
+		print(data_pipeline.word_table.size(), data_pipeline.tag_table.size())
 		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
 		print()
 		break

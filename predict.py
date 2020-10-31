@@ -20,5 +20,8 @@ def main():
 	network = NER(model_path, tag_table = tag_path, word_table = word_path)
 	print(network.model.summary())
 
+	# make predictions
+	network.predict("Who am I")
+
 if __name__ == '__main__':
 	main()
