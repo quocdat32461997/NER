@@ -8,7 +8,17 @@ import tensorflow as tf
 
 from bilstm_crf import NER
 
-model_path = 'bilstm_crf_model_2020-10-31 17:11:44.593464'
+def main():
+	# define model path
+	model_path = 'bilstm_crf_model_2020-10-31 17:11:44.593464'
 
-network = NER(model_path, tags = None)
-print(network.model.summary())
+	# define path to tag and word table
+	tag_path = 'data/tags.txt'
+	word_path = 'data/words.txt'
+
+	# initailize NER model for inference
+	network = NER(model_path, tag_table = tag_path, word_table = word_path)
+	print(network.model.summary())
+
+if __name__ == '__main__':
+	main()
