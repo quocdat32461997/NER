@@ -11,7 +11,8 @@ from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPla
 
 tf.compat.v1.enable_eager_execution()
 
-from lib import *
+from lib.data import Dataset
+from lib.models import BiLSTM_CRF
 
 def main():
 
@@ -37,6 +38,7 @@ def main():
 		txt, labels = train
 		val_txt, val_labels = val
 		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
+		print(data_pipeline.word_table.size(), data_pipeline.tag_table)
 		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
 		break
 
@@ -60,23 +62,9 @@ def main():
 	metrics = [model.layers[-1].accuracy]
 	model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
 
-	# inspect data architecture
-	print(model.summary())
-
 	"""
 	Training
 	"""
-
-	# Step 1: freeze Embedding layer for stable-loss training
-	for layer in model.layers:
-		if layer.name == 'Embedding':
-			model.layers[layer.name] = False
-
-	EPOCHS = 20
-	SHUFFLE = True
-	WORKERS = 4
-	QUEUE_SIZE = 10
-	STEPS = None
 
 	# define callbacks
 	log_dir = 'logs'
@@ -84,7 +72,36 @@ def main():
 	early_stopping = EarlyStopping(monitor = 'loss', patience = 10, verbose = 1)
 	lr_reduce = ReduceLROnPlateau(monitor = 'loss', patience = 5, verbose = 1)
 	CALLBACKS = [logging, early_stopping, lr_reduce]
+
+	QUEUE_SIZE = 10
+	WORKERS = 4
+
+	# Step 1: freeze Embedding layer for stable-loss training
+	for idx, layer in zip(range(len(model.layers)), model.layers):
+		print(layer.name)
+		if layer.name == 'embedding':
+			model.layers[idx].trainable = False
+	print("Inspect trainable parameters in Phase 1:", model.summary())
+
+	EPOCHS = 50
+	SHUFFLE = True
+	STEPS = None # entire dataset
+
+	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+
+
+	# Step 2: unfreeze all layers for full-model training
+	for idx, layer in zip(range(len(model.layers)), model.layers):
+		print(layer.name)
+		model.layers[idx].trainable = True
+	print("Inspect trainable parameters in Phase 2:", model.summary())
+
+	EPOCHS = 200
+	SHUFFLE = True
+	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
+	
 	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	
 
 if __name__ == '__main__':
 	main()

@@ -92,7 +92,7 @@ class BiLSTM_CRF:
 					embed_index[word] = coefs
 			
 			# initialize new word embedding matrices
-			embeds  = np.zeros((self.n_words + 1, self.embed_dim))
+			embeds = np.zeros((self.n_words + 1, self.embed_dim))
 			# parse words to pretrained word embeddings
 			words, indices = self.word_table.export()
 			#for word, i in zip(tf.strings.as_string(words), indices.numpy()):
