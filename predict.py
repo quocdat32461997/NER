@@ -10,7 +10,7 @@ from bilstm_crf import NER
 
 def main():
 	# define model path
-	model_path = 'bilstm_crf_model_2020-10-31 17:11:44.593464'
+	model_path = 'logs/bilstm_crf_model_2020-10-31 17:57:42.384736'
 
 	# define path to tag and word table
 	tag_path = 'data/tags.txt'

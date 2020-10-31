@@ -59,11 +59,11 @@ class NameEntityRecognizer:
 			- table : Tensorflow lookup table
 		"""
 
-		key = {'type' : tf.string, 'index' : TextFileIndex.WHOLE}
+		key = {'type' : tf.string, 'index' : TextFileIndex.WHOLE_LINE}
 		value = {'type' : tf.int64, 'index' : TextFileIndex.LINE_NUMBER}
 
 		# tag_table should lookup index and convert to real tag
-		if not type is 'str2idx':
+		if type == 'idx2str':
 			temp = key
 			key = value
 			value = temp
