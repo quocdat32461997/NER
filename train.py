@@ -86,7 +86,7 @@ def main():
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 
 	# Step 2: unfreeze all layers for full-model training
@@ -99,7 +99,7 @@ def main():
 	SHUFFLE = True
 	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
-	#model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
 
 if __name__ == '__main__':
