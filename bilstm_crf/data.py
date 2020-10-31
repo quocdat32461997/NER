@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 import tensorflow as tf
 from tensorflow.data import TextLineDataset, Dataset
-from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticHashTable, StaticVocabularyTable
+from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticHashTable
 
 from .utils import process_text, process_target
 
@@ -91,7 +91,7 @@ class Dataset:
 			 - file : str
 				Name/path to word/tag list file
 			- default : int
-				Default value for missing value. Be -1 by default
+				Default value for missing value. Be 0 by default
 
 		Outputs:
 			- table : Tensorflow lookup table
@@ -159,4 +159,3 @@ class Dataset:
 
 		else:
 			return dataset
-
