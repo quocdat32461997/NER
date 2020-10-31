@@ -20,7 +20,7 @@ def main():
 	"""
 	# define paths to text data and lookup tables
 	train_texts = ['data/ner_train_text.txt', 'data/wnut17train_conll_train_text.txt']
-	train_targets = ['data/ner_train_label.txt', 'data/wnut17train_conll_val_label.txt']
+	train_targets = ['data/ner_train_label.txt', 'data/wnut17train_conll_train_label.txt']
 
 	val_texts = ['data/ner_val_text.txt', 'data/wnut17train_conll_val_text.txt']
 	val_targets = ['data/ner_val_label.txt', 'data/wnut17train_conll_val_label.txt']
@@ -39,7 +39,6 @@ def main():
 		txt, labels = train
 		val_txt, val_labels = val
 		print("Texts shape: train {} and val {}".format(txt.shape, val_txt.shape))
-		print(data_pipeline.word_table.size(), data_pipeline.tag_table)
 		print("Targets shape: train {} and val {}".format(labels.shape, val_labels.shape))
 		print()
 		break
@@ -80,6 +79,7 @@ def main():
 	WORKERS = 4
 
 	# Step 1: freeze Embedding layer for stable-loss training
+	print("Phase-1 training: stable loss")
 	for idx, layer in zip(range(len(model.layers)), model.layers):
 		print(layer.name)
 		if layer.name == 'embedding':
@@ -91,10 +91,10 @@ def main():
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS)
-
+	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 	# Step 2: unfreeze all layers for full-model training
+	print("Phase-2 training: full-fine-tuning")
 	for idx, layer in zip(range(len(model.layers)), model.layers):
 		print(layer.name)
 		model.layers[idx].trainable = True
@@ -104,9 +104,9 @@ def main():
 	SHUFFLE = True
 	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
-	#model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
 	# save model
-	#model.save('bilstm_crf_model_{}'.format(datetime.utcnow()))
+	model.save('bilstm_crf_model_{}'.format(datetime.utcnow()))
 if __name__ == '__main__':
 	main()
