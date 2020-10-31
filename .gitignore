@@ -11,3 +11,4 @@
 **/*.lst
 **/*.zip
 **/logs/*
+**/bilstm_crf_model_*
