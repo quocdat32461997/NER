@@ -10,8 +10,8 @@ from datetime import datetime
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ReduceLROnPlateau, ModelCheckpoint
 
-from lib.data import Dataset
-from lib.models import BiLSTM_CRF
+from bilstm_crf.data import Dataset
+from bilstm_crf.models import BiLSTM_CRF
 
 def main():
 
