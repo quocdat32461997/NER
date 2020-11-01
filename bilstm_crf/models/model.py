@@ -101,8 +101,6 @@ class BiLSTM_CRF:
 				if embed_vector is not None:
 					embeds[i] = embed_vector
 
-			print(embeds.shape)
-			input()
 			self.embed_initializer = Constant(embeds)
 			
 		return Embedding(input_dim = self.n_words + 1, output_dim = self.embed_dim, input_length = self.max_len, mask_zero = self.mask_zero, trainable = self.trainable, embeddings_initializer = self.embed_initializer, embeddings_regularizer = self.regularizers[0])

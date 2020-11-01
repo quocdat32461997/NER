@@ -8,8 +8,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.lookup import TextFileInitializer, TextFileIndex, StaticHashTable
 
-from bilstm_crf.models import CRF
-from bilstm_crf.utils import process_text
+from .models import CRF
+from .utils import process_text
 
 class NameEntityRecognizer:
 	"""

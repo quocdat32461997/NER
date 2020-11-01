@@ -86,7 +86,6 @@ def main():
 		if layer.name == 'embedding':
 			model.layers[idx].trainable = False
 	print("Inspect trainable parameters in Phase 1:", model.summary())
-	print(model.loss)
 
 	EPOCHS = 1
 	SHUFFLE = True
