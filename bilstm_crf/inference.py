@@ -100,6 +100,7 @@ class NameEntityRecognizer:
 		# reshape to [batch_size, sequence_length]
 		if len(tf.shape(input)) == 1:
 			input = tf.expand_dims(input, axis = 0)
+			tokens = tf.expand_dims(tokens, axis = 0)
 
 		# make predictions
 		predictions = self.model.predict(input)
@@ -109,8 +110,7 @@ class NameEntityRecognizer:
 
 		# conver byte string to string
 		tokens = tokens.numpy()
-		tokens = [token.decode('utf-8') for token in tokens]
-		
+		tokens = np.apply_along_axis(lambda tokens: [token.decode('utf-8') for token in tokens], axis = 0, arr = tokens)		
 		return {'text' : tokens, 'tags' : predictions}
 	
 	def pred_to_tags(self, input):
