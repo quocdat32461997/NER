@@ -21,7 +21,7 @@ def main():
 	print(network.model.summary())
 
 	# make predictions
-	network.predict("Who am I")
+	print(network.predict("Who am I"))
 
 if __name__ == '__main__':
 	main()
