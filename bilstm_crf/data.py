@@ -116,7 +116,7 @@ class Dataset:
 		"""
 		
 		# processing
-		texts = texts.map(lambda sent: process_text(sent, self.word_table), num_parallel_calls = self.threads)
+		texts = texts.map(lambda sent: process_text(sent, word_table = self.word_table), num_parallel_calls = self.threads)
 		targets = targets.map(lambda sent: process_target(inputs = sent, tag_table = self.tag_table), num_parallel_calls = self.threads)
 
 		# concatnenate
