@@ -31,6 +31,8 @@ class NameEntityRecognizer:
 		if isinstance(model, str):
 			print("Loading model")
 			self.model = tf.keras.models.load_model(model, custom_objects = {'crf_loss' : CRF.loss})
+			for idx in range(len(self.model.layers)):
+				self.model.layers[idx].trainable = False
 		else:
 			self.model = model
 
@@ -93,7 +95,7 @@ class NameEntityRecognizer:
 		"""
 
 		# conver text to acceptd input format
-		input = self._process_text(input)
+		tokens, input = self._process_text(input)
 
 		# reshape to [batch_size, sequence_length]
 		if len(tf.shape(input)) == 1:
@@ -104,9 +106,12 @@ class NameEntityRecognizer:
 
 		# convert to correct output format
 		predictions = self.pred_to_tags(predictions)
-		print(predictions)
+
+		# conver byte string to string
+		tokens = tokens.numpy()
+		tokens = [token.decode('utf-8') for token in tokens]
 		
-		return predictions
+		return {'text' : tokens, 'tags' : predictions}
 	
 	def pred_to_tags(self, input):
 		"""
@@ -135,10 +140,12 @@ class NameEntityRecognizer:
 			- text : str
 				Raw text input
 		Outputs:
-			- text : str
+			- tokens : Tensor of string
 				Processed text
+			- output : Tensor of integers
+				Encoded tokens
 		"""
 
-		text = process_text(text, self.word_table)
+		tokens, output = process_text(text, word_table = self.word_table, training = False)
 
-		return text
+		return tokens, output
