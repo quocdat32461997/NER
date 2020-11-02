@@ -1,0 +1,15 @@
+i-org
+i-eve
+i-art
+i-geo
+b-eve
+i-tim
+i-nat
+b-geo
+o
+b-tim
+b-art
+i-per
+b-nat
+b-per
+b-org
