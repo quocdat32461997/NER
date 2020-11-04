@@ -85,7 +85,7 @@ def main():
 		if layer.name == 'embedding':
 			model.layers[idx].trainable = False
 	print("Inspect trainable parameters in Phase 1:", model.summary())
-
+  
 	EPOCHS = 20
 	SHUFFLE = True
 	STEPS = None # entire dataset
