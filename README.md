@@ -7,12 +7,13 @@ Implementation of BiLSTM-CRF model for Sequence Tagging
 
 ### Repo structure
 * README.md
-* data - folder to store post-procssed training dta
-* example.ipynb - notebook for testing
-* SequenceTager.ipynb - noteboko for Development phase
-* lib - folder to store utils, data loader, and model
+* logs - folder of training, validation, and testing loggings
+* resources - folder to store training data
+* notebooks - list of Jupyter Notebooks for tutorials
+* bilstm_crf - folder to store utils, data loader, and model
 * requirements.txt - list of dependencies
 * train.py - main file to execute training task
+* predict.py - tutorial script for makeing predictions locally
 
 #### Data & Word Embeddings
 *  Data:
