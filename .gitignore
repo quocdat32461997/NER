@@ -10,5 +10,8 @@
 **/explore_ml
 **/*.lst
 **/*.zip
-**/logs/*
+**/logs/train
+**/logs/test
+**/logs/validation
 **/bilstm_crf_model_*
+**/models/bilstm_crf_model_*

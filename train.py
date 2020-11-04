@@ -19,14 +19,14 @@ def main():
 	initialize Data pipeline
 	"""
 	# define paths to text data and lookup tables
-	train_texts = ['data/ner_train_text.txt', 'data/wnut17train_conll_train_text.txt']
-	train_targets = ['data/ner_train_label.txt', 'data/wnut17train_conll_train_label.txt']
+	train_texts = ['/resources/data/ner_train_text.txt', './resources/data/wnut17train_conll_train_text.txt']
+	train_targets = ['./resources/data/ner_train_label.txt', './resources/data/wnut17train_conll_train_label.txt']
 
-	val_texts = ['data/ner_val_text.txt', 'data/wnut17train_conll_val_text.txt']
-	val_targets = ['data/ner_val_label.txt', 'data/wnut17train_conll_val_label.txt']
+	val_texts = ['./resources/data/ner_val_text.txt', './resources/data/wnut17train_conll_val_text.txt']
+	val_targets = ['/resources/data/ner_val_label.txt', './resources/data/wnut17train_conll_val_label.txt']
 
-	word_table_path = './data/words.txt'
-	tag_table_path = './data/tags.txt'
+	word_table_path = './resources/data/words.txt'
+	tag_table_path = './resources/data/tags.txt'
 
 	BATCH_SIZE = 32
 
@@ -61,8 +61,7 @@ def main():
 	LR = 0.001
 	optimizer = Adam(learning_rate = LR)
 	loss = model.layers[-1].loss
-	metrics = [model.layers[-1].accuracy]
-	model.compile(optimizer = optimizer, loss = loss, metrics = metrics)
+	model.compile(optimizer = optimizer, loss = loss)
 
 	"""
 	Training
@@ -86,17 +85,12 @@ def main():
 		if layer.name == 'embedding':
 			model.layers[idx].trainable = False
 	print("Inspect trainable parameters in Phase 1:", model.summary())
-
-	EPOCHS = 5
+  
+	EPOCHS = 20
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
-
-	# save model
-	model_path = 'bilstm_crf_model_{}'.format(datetime.utcnow())
-	print("Saving model into {}".format(model_path))     
-	model.save(model_path)
+	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 	# Step 2: unfreeze all layers for full-model training
 	print("Phase-2 training: full-fine-tuning")
@@ -105,15 +99,15 @@ def main():
 		model.layers[idx].trainable = True
 	print("Inspect trainable parameters in Phase 2:", model.summary())
 
-	EPOCHS = 50
+	EPOCHS = 150
 	SHUFFLE = True
 	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
 	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
 	# save model
-	model_path = 'bilstm_crf_model_{}'.format(datetime.utcnow())
+	model_path = 'models/bilstm_crf_model_{}'.format(datetime.utcnow())
 	print("Saving model into {}".format(model_path))
-	model.save(model_path)
+	tf.keras.models.save_model(model_path)
 if __name__ == '__main__':
 	main()
