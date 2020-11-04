@@ -50,12 +50,14 @@ The trained model is saved in the SavedFormat mode that the trained model could 
 * Deployment in:
 	* Local server
 	```
-	To be added
+	# run predict.py
+	python3 predict.py
 	```
 	
 	* Tensorflow Serving - TBD	
-
-
+	```
+	To be added
+	```
 ### Dependencies
 * Tensorflow >= 2.3.1
 * Python >= 3.8
