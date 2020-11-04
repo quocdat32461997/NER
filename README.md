@@ -49,15 +49,12 @@ The trained model is saved in the SavedFormat mode that the trained model could 
 * Fine-tuning
 * Deployment in:
 	* Local server
-```
-To be added
-```
+	```
+	To be added
+	```
 	
-	* Tensorflow Serving
-	
-```
-To be added
-```
+	* Tensorflow Serving - TBD	
+
 
 ### Dependencies
 * Tensorflow >= 2.3.1
