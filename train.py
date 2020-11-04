@@ -61,7 +61,6 @@ def main():
 	LR = 0.001
 	optimizer = Adam(learning_rate = LR)
 	loss = model.layers[-1].loss
-	metrics = [model.layers[-1].accuracy]
 	model.compile(optimizer = optimizer, loss = loss)
 
 	"""
@@ -87,11 +86,11 @@ def main():
 			model.layers[idx].trainable = False
 	print("Inspect trainable parameters in Phase 1:", model.summary())
 
-	EPOCHS = 1
+	EPOCHS = 20
 	SHUFFLE = True
 	STEPS = None # entire dataset
 
-	#model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	model.fit(train_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 
 	# Step 2: unfreeze all layers for full-model training
 	print("Phase-2 training: full-fine-tuning")
@@ -100,15 +99,15 @@ def main():
 		model.layers[idx].trainable = True
 	print("Inspect trainable parameters in Phase 2:", model.summary())
 
-	EPOCHS = 1
+	EPOCHS = 150
 	SHUFFLE = True
 	STEPS = 512 # by calculation, num_smaples // batch_size ~= 2396
 	
-	#model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
+	model.fit(train_dataset, validation_data = val_dataset, epochs = EPOCHS, verbose = 1, callbacks = CALLBACKS, shuffle = SHUFFLE, steps_per_epoch = STEPS, max_queue_size = QUEUE_SIZE, workers = WORKERS, use_multiprocessing = True)
 	
 	# save model
-	model_path = 'bilstm_crf_model_{}'.format(datetime.utcnow())
+	model_path = 'models/bilstm_crf_model_{}'.format(datetime.utcnow())
 	print("Saving model into {}".format(model_path))
-	model.save(model_path)
+	tf.keras.models.save_model(model_path)
 if __name__ == '__main__':
 	main()
