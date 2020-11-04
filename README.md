@@ -7,6 +7,7 @@ Implementation of BiLSTM-CRF model for Sequence Tagging
 
 ### Repo structure
 * README.md
+* models - folder to store trained models for latter use
 * logs - folder of training, validation, and testing loggings
 * resources - folder to store training data
 * notebooks - list of Jupyter Notebooks for tutorials
@@ -15,35 +16,43 @@ Implementation of BiLSTM-CRF model for Sequence Tagging
 * train.py - main file to execute training task
 * predict.py - tutorial script for makeing predictions locally
 
-#### Data & Word Embeddings
+### Data & Word Embeddings
 *  Data:
 	* [Name-Entity-Recognition-Corpus](https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus)
 	* [WNUT 17](https://huggingface.co/datasets/wnut_17)
 * Word Embeddings:
 	* [Twitter or Wikipediea Word Embeddings](https://nlp.stanford.edu/projects/glove/)
 
+### Instructions
 #### Installation & Setup
 ```
+git clone https://github.com/quocdat32461997/NER
 pip install -r requirements.txt
 ```
 
-#### Raw text processing
-Raw-process text as described in Train_Dsta_Processing.ipynb
+#### Text processing
+* Step 1:
+	* For above datasets, please look at /notebooks/Train_Dsta_Processing.ipynb
+	* In production: all text and labels are stored in a signle file (each for training, validation, and testing) that each line is a raw sentence and a sequence of tag labels. The raw sentence and the sequence of tag labels are separated by tab **\t**. Input format sample: **I am Eric. \t O O PER**
+* Step 2: Tensorflow Dataset pipeline embedded in **Dataset class of bilstm_crf/data.py** accepts the text input format in **step 1** and auto-processes text.
 
 #### Training:
 - Deveopment: run **SequenceTagger.ipynb** either locally or on Google Colab for development
-- Training: run **train.py** to fine-tune BiLSTM-CRF on NER dataset and CorNeLL 2017 dataset. Type:
+- Training: run **train.py** to train BiLSTM-CRF on NER dataset & WNut 2017 dataset or your dcustom ataset. Example:
 ```
 # need to modify path to data and word-embedding files
 python3 train.py
 ```
 
 #### Inference
+The trained model is saved in the SavedFormat mode that the trained model could be loaded for:
+* Fine-tuning
+* Deployment in:
+	* Local server
 ```
 To be added
 ```
-
-### Deployment in Tensorflow Serving
+	* Tensorflow Serving
 ```
 To be added
 ```
@@ -52,7 +61,7 @@ To be added
 * Tensorflow >= 2.3.1
 * Python >= 3.8
 
-#### References
+### References
 * [Depends of the definition](https://www.depends-on-the-definition.com/sequence-tagging-lstm-crf/)
 * [Annotated Corpus for Named Entity Recognition](https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus)
 * Jeffrey Pennington, Richard Socher, and Christopher D. Manning. 2014. GloVe: Global Vectors for Word Representation
@@ -79,4 +88,3 @@ To be added
                 and based on that, also datasets for detecting these entities. The task as described in this paper evaluated the
                 ability of participating entries to detect and classify novel and emerging named entities in noisy text.",
 }
-
