@@ -33,7 +33,8 @@ pip install -r requirements.txt
 #### Text processing
 * Step 1:
 	* For above datasets, please look at /notebooks/Train_Dsta_Processing.ipynb
-	* In production: all text and labels are stored in a signle file (each for training, validation, and testing) that each line is a raw sentence and a sequence of tag labels. The raw sentence and the sequence of tag labels are separated by tab **\t**. Input format sample: **I am Eric. \t O O PER**
+	* In production: all text and labels are stored in a signle file (each for training, validation, and testing) that each line is a raw sentence and a sequence of tag labels. The raw sentence and the sequence of tag labels are separated by tab **\t**. 
+	Input format sample: **I am Eric. \t O O PER**
 * Step 2: Tensorflow Dataset pipeline embedded in **Dataset class of bilstm_crf/data.py** accepts the text input format in **step 1** and auto-processes text.
 
 #### Training:
