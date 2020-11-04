@@ -19,14 +19,14 @@ def main():
 	initialize Data pipeline
 	"""
 	# define paths to text data and lookup tables
-	train_texts = ['data/ner_train_text.txt', 'data/wnut17train_conll_train_text.txt']
-	train_targets = ['data/ner_train_label.txt', 'data/wnut17train_conll_train_label.txt']
+	train_texts = ['/resources/data/ner_train_text.txt', './resources/data/wnut17train_conll_train_text.txt']
+	train_targets = ['./resources/data/ner_train_label.txt', './resources/data/wnut17train_conll_train_label.txt']
 
-	val_texts = ['data/ner_val_text.txt', 'data/wnut17train_conll_val_text.txt']
-	val_targets = ['data/ner_val_label.txt', 'data/wnut17train_conll_val_label.txt']
+	val_texts = ['./resources/data/ner_val_text.txt', './resources/data/wnut17train_conll_val_text.txt']
+	val_targets = ['/resources/data/ner_val_label.txt', './resources/data/wnut17train_conll_val_label.txt']
 
-	word_table_path = './data/words.txt'
-	tag_table_path = './data/tags.txt'
+	word_table_path = './resources/data/words.txt'
+	tag_table_path = './resources/data/tags.txt'
 
 	BATCH_SIZE = 32
 
