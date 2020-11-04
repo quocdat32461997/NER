@@ -52,7 +52,9 @@ The trained model is saved in the SavedFormat mode that the trained model could 
 ```
 To be added
 ```
+	
 	* Tensorflow Serving
+	
 ```
 To be added
 ```
