@@ -32,13 +32,13 @@ def process_text(input, word_table, training = True):
 		- input : Tensor
 			Tensor of shape [sequence_length]
 	"""
-
+	print(input)
 	# lowercase string
 	input = tf.strings.lower(input)
-
+	print(input)
 	# tokenize 
 	tokens = tf.strings.split(input)
-
+	print(tokens)
 	# convert string to integer
 	output = word_table.lookup(tokens)
 
